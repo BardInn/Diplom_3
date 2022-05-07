@@ -25,7 +25,6 @@ public class CustomerData {
 	private CustomerToken customerToken;
 
 
-
 	@Step("Generating random data to create a customer")
 	public static CustomerData getRandom() {
 		final String email = emails().val();

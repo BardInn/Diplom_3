@@ -15,15 +15,6 @@ public class BurgerFeedPageTest {
 	public static final String URL = "https://stellarburgers.nomoreparties.site";
 	private BurgerFeedPage feedPage;
 
-	/*@BeforeClass
-
-	public static void beforeClass() {
-		System.setProperty("webdriver.chrome.driver", "/Users/fenwer/Downloads/yandexdriver");
-		ChromeOptions options = new ChromeOptions();
-		options.setBinary("/Applications/Yandex.app/Contents/MacOS/Yandex");
-
-	}   */
-
 	@Before
 	public void before() {
 		feedPage = open(URL, BurgerFeedPage.class);

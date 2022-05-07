@@ -16,7 +16,6 @@ import static com.codeborne.selenide.Selenide.webdriver;
 import static com.codeborne.selenide.WebDriverConditions.url;
 
 
-
 public class BurgerLoginTest {
 	public static final String URL = "https://stellarburgers.nomoreparties.site/";
 	private static BurgerHeader header;

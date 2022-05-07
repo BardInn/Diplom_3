@@ -17,6 +17,7 @@ import static io.restassured.http.ContentType.JSON;
 public class CustomerClient {
 	public static final String BASE_URL = "https://stellarburgers.nomoreparties.site";
 	private static final String CUSTOMER_PATH = "/api/auth/";
+
 	protected static RequestSpecification getBaseSpec() {
 		return new RequestSpecBuilder()
 				.addFilter(new AllureRestAssured())
@@ -24,17 +25,18 @@ public class CustomerClient {
 				.setBaseUri(BASE_URL)
 				.build();
 	}
+
 	@Step("Login customer")
-	public static ValidatableResponse login(String email,String password) {
+	public static ValidatableResponse login(String email, String password) {
 		@AllArgsConstructor
 		@Data
-		class Credentials{
+		class Credentials {
 			String email;
 			String password;
 		}
 		return given()
 				.spec(getBaseSpec())
-				.body(new Credentials(email,password))
+				.body(new Credentials(email, password))
 				.when()
 				.post(CUSTOMER_PATH + "login")
 				.then();
