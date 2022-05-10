@@ -1,23 +1,31 @@
-package stellarburgers.nomoreparties.site.Chrome;
+package stellarburgers.nomoreparties.site;
 
 import io.qameta.allure.Description;
 import io.qameta.allure.junit4.DisplayName;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
+import org.openqa.selenium.chrome.ChromeOptions;
 import stellarburgers.nomoreparties.site.BurgerFeedPage;
 
 import static com.codeborne.selenide.Condition.visible;
 import static com.codeborne.selenide.Selenide.open;
+import static stellarburgers.nomoreparties.site.BurgerRestClient.BASE_URL;
 
 
 public class BurgerFeedPageTest {
 
-	public static final String URL = "https://stellarburgers.nomoreparties.site";
 	private BurgerFeedPage feedPage;
+
+
+	@BeforeClass
+	public static void beforeClass() {
+		TestUtils.setUpBrowser();
+	}
 
 	@Before
 	public void before() {
-		feedPage = open(URL, BurgerFeedPage.class);
+		feedPage = open(BASE_URL, BurgerFeedPage.class);
 	}
 
 	@Test

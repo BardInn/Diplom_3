@@ -1,4 +1,4 @@
-package stellarburgers.nomoreparties.site.Chrome;
+package stellarburgers.nomoreparties.site;
 
 import com.codeborne.selenide.Condition;
 import io.qameta.allure.Description;
@@ -11,29 +11,28 @@ import stellarburgers.nomoreparties.site.BurgerHeader;
 import stellarburgers.nomoreparties.site.BurgerLoginPage;
 import stellarburgers.nomoreparties.site.BurgerRegisterPage;
 
+import static com.codeborne.selenide.Condition.visible;
 import static com.codeborne.selenide.Selenide.open;
 import static com.codeborne.selenide.Selenide.webdriver;
 import static com.codeborne.selenide.WebDriverConditions.url;
+import static stellarburgers.nomoreparties.site.BurgerRestClient.BASE_URL;
 
 import stellarburgers.nomoreparties.site.*;
 
 public class ClickToHeaderButtonsTest {
-	private static final String URL = "https://stellarburgers.nomoreparties.site/";
+
 	private static BurgerHeader personalAccount;
 	private static CustomerData customerData;
 
 
 	@BeforeClass
 	public static void before() {
-		BurgerRegisterPage create = open(URL + "register", BurgerRegisterPage.class);
+		TestUtils.setUpBrowser();
+		CustomerClient customerClient = new CustomerClient();
 		customerData = CustomerData.getRandom();
-		create.setInputName(customerData.getName());
-		create.setInputEmail(customerData.getEmail());
-		create.setInputPassword(customerData.getPassword());
-		create.registrationClick();
-		webdriver().shouldHave(url("https://stellarburgers.nomoreparties.site/login"));
-		BurgerLoginPage loginPage = create.loginClassPage();
-		loginPage.inputEmail.shouldBe(Condition.visible);
+		ValidatableResponse isCreated = customerClient.create(customerData.getName(), customerData.getEmail(), customerData.getPassword());
+		BurgerLoginPage loginPage = open(BASE_URL + "login", BurgerLoginPage.class);
+		loginPage.inputEmail.shouldBe(visible);
 		loginPage.setInputEmail(customerData.getEmail());
 		loginPage.setInputPassword(customerData.getPassword());
 		loginPage.loginButtonClick();
@@ -42,9 +41,7 @@ public class ClickToHeaderButtonsTest {
 
 	@AfterClass
 	public static void tearDown() {
-		ValidatableResponse login = CustomerClient.login(customerData.getEmail(), customerData.getPassword());
-		customerData.getCustomerToken().setAccessToken(login.extract().path("accessToken"));
-		ValidatableResponse delete = CustomerClient.delete(customerData);
+		CustomerClient.tearDown(customerData);
 	}
 
 	@Test
@@ -61,7 +58,7 @@ public class ClickToHeaderButtonsTest {
 	public void clickToFeedButtonTest() {
 		personalAccount.personalAccountClick();
 		personalAccount.constructorClick();
-		webdriver().shouldHave(url(URL));
+		webdriver().shouldHave(url(BASE_URL));
 	}
 
 	@Test
@@ -70,7 +67,7 @@ public class ClickToHeaderButtonsTest {
 	public void clickToLogoTest() {
 		personalAccount.personalAccountClick();
 		personalAccount.homeButtonClick();
-		webdriver().shouldHave(url(URL));
+		webdriver().shouldHave(url(BASE_URL));
 	}
 
 

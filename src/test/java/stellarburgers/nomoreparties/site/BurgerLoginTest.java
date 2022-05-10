@@ -1,41 +1,36 @@
-package stellarburgers.nomoreparties.site.Yandex;
+package stellarburgers.nomoreparties.site;
 
 import io.qameta.allure.Description;
 import io.restassured.response.ValidatableResponse;
 import org.junit.*;
 
 import io.qameta.allure.junit4.DisplayName;
-import org.openqa.selenium.chrome.ChromeOptions;
 import stellarburgers.nomoreparties.site.*;
 
 
 import static com.codeborne.selenide.Selenide.open;
 import static com.codeborne.selenide.Selenide.webdriver;
 import static com.codeborne.selenide.WebDriverConditions.url;
+import static stellarburgers.nomoreparties.site.BurgerRestClient.BASE_URL;
 
-public class BurgerLoginYandexTest {
-	public static final String URL = "https://stellarburgers.nomoreparties.site/";
+
+public class BurgerLoginTest {
+	public static final String TEST_URL = "https://stellarburgers.nomoreparties.site/login";
 	private static BurgerHeader header;
 	private static CustomerData customerData;
 	private static BurgerLoginPage loginPage;
 
-	@BeforeClass
-	public static void beforeTest() {
-		System.setProperty("webdriver.chrome.driver", "/Users/fenwer/Downloads/yandexdriver");
-		ChromeOptions options = new ChromeOptions();
-		options.setBinary("/Applications/Yandex.app/Contents/MacOS/Yandex");
-	}
 
 	@BeforeClass
-	public static void setUp(){
-		BurgerRegisterPage create = open(URL + "register", BurgerRegisterPage.class);
+	public static void beforeClass() {
+		TestUtils.setUpBrowser();
+	}
+
+	@Before
+	public void beforeTest() {
+		CustomerClient customerClient = new CustomerClient();
 		customerData = CustomerData.getRandom();
-		create.setInputName(customerData.getName());
-		create.setInputEmail(customerData.getEmail());
-		create.setInputPassword(customerData.getPassword());
-		create.registrationClick();
-		header = create.headerClassPage();
-		header.homeButtonClick();
+		ValidatableResponse isCreated = customerClient.create(customerData.getName(),customerData.getEmail(), customerData.getPassword());
 	}
 
 	@After
@@ -44,67 +39,62 @@ public class BurgerLoginYandexTest {
 		header.personalAccountClick();
 		BurgerPersonalAccount personalAccountLogOut = header.burgerPersonalAccount();
 		personalAccountLogOut.logOutClick();
-		webdriver().shouldHave(url("https://stellarburgers.nomoreparties.site/login"));
+		webdriver().shouldHave(url(TEST_URL));
 	}
 
 	@AfterClass
 	public static void tearDown() {
-		ValidatableResponse login = CustomerClient.login(customerData.getEmail(), customerData.getPassword());
-		customerData.getCustomerToken().setAccessToken(login.extract().path("accessToken"));
-		ValidatableResponse delete = CustomerClient.delete(customerData);
+		CustomerClient.tearDown(customerData);
 	}
 
 	@Test
 	@DisplayName("LogIn")
 	@Description("Login from personal account")
 	public void loginFromPersonalAccountTest() {
+		header = open(BASE_URL, BurgerHeader.class);
 		header.personalAccountClick();
-		webdriver().shouldHave(url("https://stellarburgers.nomoreparties.site/login"));
 		loginPage = header.burgerLoginPage();
 		loginPage.setInputEmail(customerData.getEmail());
 		loginPage.setInputPassword(customerData.getPassword());
 		loginPage.loginButtonClick();
-		webdriver().shouldHave(url(URL));
+		webdriver().shouldHave(url(BASE_URL));
 	}
 
 	@Test
 	@DisplayName("LogIn")
 	@Description("Login from button in the middle of the site")
 	public void loginToAccountInTheMiddleTest() {
-		BurgerFeedPage feedPage = open(URL, BurgerFeedPage.class);
+		BurgerFeedPage feedPage = open(BASE_URL, BurgerFeedPage.class);
 		feedPage.logInToAccountClick();
-		webdriver().shouldHave(url("https://stellarburgers.nomoreparties.site/login"));
 		loginPage = feedPage.loginPageClass();
 		loginPage.setInputEmail(customerData.getEmail());
 		loginPage.setInputPassword(customerData.getPassword());
 		loginPage.loginButtonClick();
-		webdriver().shouldHave(url(URL));
+		webdriver().shouldHave(url(BASE_URL));
 	}
 
 	@Test
 	@DisplayName("LogIn")
 	@Description("Login from button in the registration form")
 	public void loginFromTheRegistrationPageTest() {
-		BurgerRegisterPage registerPage = open(URL + "register", BurgerRegisterPage.class);
+		BurgerRegisterPage registerPage = open(BASE_URL + "register", BurgerRegisterPage.class);
 		registerPage.logInButtonClick();
-		webdriver().shouldHave(url("https://stellarburgers.nomoreparties.site/login"));
 		loginPage = registerPage.loginClassPage();
 		loginPage.setInputEmail(customerData.getEmail());
 		loginPage.setInputPassword(customerData.getPassword());
 		loginPage.loginButtonClick();
-		webdriver().shouldHave(url(URL));
+		webdriver().shouldHave(url(BASE_URL));
 	}
 
 	@Test
 	@DisplayName("LogIn")
 	@Description("Login from button in password recovery page")
 	public void loginFromResetPasswordPageTest() {
-		loginPage = open(URL + "forgot-password", BurgerLoginPage.class);
+		loginPage = open(BASE_URL + "forgot-password", BurgerLoginPage.class);
 		loginPage.loginAtResetPasswordPageClick();
-		webdriver().shouldHave(url("https://stellarburgers.nomoreparties.site/login"));
 		loginPage.setInputEmail(customerData.getEmail());
 		loginPage.setInputPassword(customerData.getPassword());
 		loginPage.loginButtonClick();
-		webdriver().shouldHave(url(URL));
+		webdriver().shouldHave(url(BASE_URL));
 	}
 }
